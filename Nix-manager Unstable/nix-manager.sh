@@ -1,22 +1,26 @@
 d=`date +%m:%d:%y:%H:%M:%S`
 
-echo -e "\e[34mNix-manager revision 0.0.3 made by relogit. running as user '$USER'\e[0m"
-echo -e "\e[1;36mPlease ensure the 'git' package is added to your configuration.nix.\e[0m"
+echo -e "\e[34mNix-manager revision 0.0.3 made by relogit. running as user '$USER'.\e[0m"
+if grep -q git "/etc/nixos/configuration.nix";
+then echo "" > /dev/null
+else echo -e "\e[1;36mFailed to find git in configuration.nix.\e[0m"
+fi
+
 if grep -q nix-manager "/home/$USER/.bashrc"; then
-  echo
+echo "" > /dev/null
 else echo alias nix-manager="/home/$USER/bin/nix-manager.sh" >> /home/$USER/.bashrc
 fi
 if [ "$EUID" = 0 ]
 then echo -e "\e[1;31m Please run as regular user \e[0m"
   exit
 fi
-
 if [ -d /home/$USER/Nix-manager ];
    then
-      echo -e "\e[1;34mNix-manager already exists in $USER's home, swapping clones anyway... \e[0m"
-      sleep 1
+      # echo -e "\e[1;34mNix-manager already exists in $USER's home, swapping clones anyway... \e[0m"
+      # sleep 1
       rm -rf /home/$USER/Nix-manager/tools
 else
+   echo
    echo -e "\e[1;34mNix-manager utility does not exist... \e[0m"
    read -p "Make /Nix-manager directory? (y) " -n 1 -r
    if [[ $REPLY =~ ^[Yy]$ ]]
@@ -29,10 +33,10 @@ else
       exit
    fi
 fi
-echo -e "Updating Nix-manager..."
+echo -e "Updating Nix-manager from repos..."
 git clone https://github.com/relogit/Nix-manager /home/$USER/Nix-manager/tools &> /dev/null
 echo -e "\e[1;34m"
-read -p " Nix-manager Menu | (e)dit (r)ebuild (b)ackup (t)est: [ENTER] to confirm letter:  " line
+read -p "Nix-manager Menu | (e)dit (r)ebuild (b)ackup (t)est: [ENTER] to confirm letter:  " line
 if [[ $line =~ ^[e]$ ]]
 then sudo nano /etc/nixos/configuration.nix
 echo -e "\e[1;34Rebuild now? \e[0m"
@@ -68,10 +72,11 @@ fi
 fi
 
 if [[ $line =~ ^[t]$ ]]
-then read -p " What package to try?:  " pkgname
-echo -e "\e[1;36m Communicating to system. \e[0m"
+then read -p "What package to try?:  " pkgname
+echo -e "\e[1;36mCommunicating to system. \e[0m"
+echo -e "Once the script exits, type '$pkgname'."
+sleep 5
+echo -e "Starting \e[1;34mnix-shell\e[0m."
 nix-shell -p $pkgname
-sleep 2
-echo -e "\e[1;36m Running application $pkgname... \e[0m"
-$pkgname
+
 fi
