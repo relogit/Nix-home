@@ -1,6 +1,6 @@
 d=`date +%m:%d:%y:%H:%M:%S`
 
-echo -e "\e[34mNix-manager revision 0.0.3 made by relogit. running as user '$USER'.\e[0m"
+echo -e "\e[34m Nix-manager revision 0.0.4 made by relogit. running as user '$USER'.\e[0m"
 if grep -q git "/etc/nixos/configuration.nix";
 then echo "" > /dev/null
 else echo -e "\e[1;36mFailed to find git in configuration.nix.\e[0m"
@@ -16,13 +16,11 @@ then echo -e "\e[1;31m Please run as regular user \e[0m"
 fi
 if [ -d /home/$USER/Nix-manager ];
    then
-      # echo -e "\e[1;34mNix-manager already exists in $USER's home, swapping clones anyway... \e[0m"
-      # sleep 1
       rm -rf /home/$USER/Nix-manager/tools
 else
    echo
-   echo -e "\e[1;34mNix-manager utility does not exist... \e[0m"
-   read -p "Make /Nix-manager directory? (y) " -n 1 -r
+   echo -e "\e[1;32m First-time startup! \e[0m"
+   read -p " Make /Nix-manager directory? (y) " -n 1 -r
    if [[ $REPLY =~ ^[Yy]$ ]]
    then
        echo
@@ -33,13 +31,13 @@ else
       exit
    fi
 fi
-echo -e "Updating Nix-manager from repos..."
 git clone https://github.com/relogit/Nix-manager /home/$USER/Nix-manager/tools &> /dev/null
+
 echo -e "\e[1;34m"
-read -p "Nix-manager Menu | (e)dit (r)ebuild (b)ackup (t)est: [ENTER] to confirm letter:  " line
+read -p " >>> Nix-manager Menu | (e)dit (r)ebuild (b)ackup (t)est: [ENTER] to confirm letter:  " line
+echo -e "\e[0m"
 if [[ $line =~ ^[e]$ ]]
 then sudo nano /etc/nixos/configuration.nix
-echo -e "\e[1;34Rebuild now? \e[0m"
    read -p "Rebuild now? (y) " -n 1 -r
    if [[ $REPLY =~ ^[Yy]$ ]]
    then sudo nixos-rebuild switch
@@ -51,7 +49,7 @@ then sudo nixos-rebuild switch
 fi
 
 if [[ $line =~ ^[b]$ ]]
-then echo -e "Backing up configuration.nix from $d"
+then echo -e " Backing up configuration.nix from $d"
      if [ -d /home/$USER/Nix-manager/MyBackups ];
      then echo
      else
@@ -72,11 +70,9 @@ fi
 fi
 
 if [[ $line =~ ^[t]$ ]]
-then read -p "What package to try?:  " pkgname
-echo -e "\e[1;36mCommunicating to system. \e[0m"
-echo -e "Once the script exits, type '$pkgname'."
-sleep 5
-echo -e "Starting \e[1;34mnix-shell\e[0m."
-nix-shell -p $pkgname
+then read -p " What package to try?
+ To make sure this is the correct package name, refer to https://search.nixos.org/packages   " pkgname
+echo -e " Once Nix-manager exits, type '$pkgname'."
+nix-shell --quiet -p $pkgname
 
 fi
