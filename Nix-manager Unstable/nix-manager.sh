@@ -39,7 +39,7 @@ echo -e "\e[0m"
 if [[ $line =~ ^[Ee]$ ]]
 then sudo nano /etc/nixos/configuration.nix
    read -p "(r)ebuild r(e)dit  " -n 1 -r
-   if [[ $REPLY =~ ^[Yy]$ ]]
+   if [[ $REPLY =~ ^[Rr]$ ]]
    then sudo nixos-rebuild switch
    fi
    if [[ $REPLY =~ ^[Ee]$ ]]
